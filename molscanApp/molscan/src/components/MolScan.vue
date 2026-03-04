@@ -43,6 +43,28 @@
               </div>
             </div>
           </div>
+          <div class="ui transparent vertical menu submenu" style="margin-top:-2px!important; " v-if="searchStats.pubchem.count !== null || searchStats.chembl.count !== null">
+            <div class="item" style="padding-top:12px; padding-bottom:15px;background: #FFFAFA;color:#666">
+              <strong>Efficacité des agents</strong>
+            </div>
+            <div class="item" style="background: #FFF; font-size:13px; padding:10px 14px">
+              <div v-if="searchStats.pubchem.count !== null" style="margin-bottom:8px">
+                <strong>PubChem :</strong> {{ searchStats.pubchem.count }} résultat(s) en {{ searchStats.pubchem.time }}s
+                <div class="ui tiny progress" style="margin:4px 0 0 0">
+                  <div class="bar" :style="'width:' + pubchemBar + '%;background:#2185d0'"></div>
+                </div>
+              </div>
+              <div v-if="searchStats.chembl.count !== null">
+                <strong>ChEMBL :</strong> {{ searchStats.chembl.count }} résultat(s) en {{ searchStats.chembl.time }}s
+                <div class="ui tiny progress" style="margin:4px 0 0 0">
+                  <div class="bar" :style="'width:' + chemblBar + '%;background:#21ba45'"></div>
+                </div>
+              </div>
+              <div v-if="bestAgent" style="margin-top:10px; color:#333; font-size:12px">
+                <i class="trophy icon" style="color:#f2c037"></i> Agent le plus efficace : <strong>{{ bestAgent }}</strong>
+              </div>
+            </div>
+          </div>
           <div class="ui transparent vertical menu submenu" style="margin-top:-2px!important">
             <div class="item" style="padding-top:12px; padding-bottom:15px;background: #FFFAFA;color:#666">
               <strong>Molécules sauvegardées </strong>
@@ -130,7 +152,34 @@ export default {
     selectedRequests: function () { return this.$store.getters.selectedRequests },
     molecules: function () { return this.$store.getters.molecules.filter(mol => this.inArray(mol.requests, this.selectedRequestNames)) },
     molSaved: function () { return this.$store.getters.molSaved },
-    molSavedSelected: function () { return this.$store.getters.molSavedSelected }
+    molSavedSelected: function () { return this.$store.getters.molSavedSelected },
+    searchStats: function () { return this.$store.getters.searchStats },
+    pubchemBar: function () {
+      let pc = this.searchStats.pubchem.count || 0
+      let cb = this.searchStats.chembl.count || 0
+      let max = Math.max(pc, cb, 1)
+      return Math.round((pc / max) * 100)
+    },
+    chemblBar: function () {
+      let pc = this.searchStats.pubchem.count || 0
+      let cb = this.searchStats.chembl.count || 0
+      let max = Math.max(pc, cb, 1)
+      return Math.round((cb / max) * 100)
+    },
+    bestAgent: function () {
+      let pc = this.searchStats.pubchem.count
+      let cb = this.searchStats.chembl.count
+      let pcTime = parseFloat(this.searchStats.pubchem.time) || 0
+      let cbTime = parseFloat(this.searchStats.chembl.time) || 0
+      if (pc === null && cb === null) return null
+      if (pc === null) return 'ChEMBL'
+      if (cb === null) return 'PubChem'
+      let pcRate = pcTime > 0 ? pc / pcTime : pc
+      let cbRate = cbTime > 0 ? cb / cbTime : cb
+      if (pcRate > cbRate) return 'PubChem'
+      if (cbRate > pcRate) return 'ChEMBL'
+      return 'Égalité'
+    }
   },
   watch: {
     molecules: {

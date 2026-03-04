@@ -124,6 +124,7 @@ export default {
       commit('setLoading', true)
       // await pubchem.search_molecule_structures(payload)
       let names = []
+      const startTime = Date.now()
       for (let frag of store.getters.selectedRequests) {
         console.log(frag.name)
         names.push(frag.name)
@@ -159,6 +160,8 @@ export default {
           return []
         })
 
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
+      store.dispatch('setSearchStats', { agent: 'pubchem', count: state.molecules.length, time: elapsed })
       // commit('setLoading', false)
       console.log('endrequest')
     },
@@ -167,6 +170,7 @@ export default {
       console.log('recherche.....')
 
       let names = []
+      const startTime = Date.now()
       for (let frag of store.getters.selectedRequests) {
         console.log(frag.name)
         names.push(frag.name)
@@ -202,6 +206,8 @@ export default {
           return []
         })
 
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
+      store.dispatch('setSearchStats', { agent: 'chembl', count: state.molecules.length, time: elapsed })
       // commit('setLoading', false)
       console.log('endrequest')
     },

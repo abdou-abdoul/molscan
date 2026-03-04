@@ -5,7 +5,11 @@ export default {
       { id: 'chembl', name: 'Chembl database', isSelected: false }
     ],
     loading: null,
-    error: null
+    error: null,
+    searchStats: {
+      pubchem: { count: null, time: null },
+      chembl: { count: null, time: null }
+    }
   },
   mutations: {
     setLoading: (state, payload) => {
@@ -16,6 +20,9 @@ export default {
     },
     clearError: (state) => {
       state.error = null
+    },
+    setSearchStats: (state, payload) => {
+      state.searchStats[payload.agent] = { count: payload.count, time: payload.time }
     }
   },
   actions: {
@@ -27,12 +34,16 @@ export default {
     },
     setError: ({ commit }, payload) => {
       commit('setError', payload)
+    },
+    setSearchStats: ({ commit }, payload) => {
+      commit('setSearchStats', payload)
     }
   },
   getters: {
     loading: state => state.loading,
     error: state => state.error,
     databases: state => state.databases,
-    dbSelected: state => state.databases.filter(db => db.isSelected)
+    dbSelected: state => state.databases.filter(db => db.isSelected),
+    searchStats: state => state.searchStats
   }
 }
